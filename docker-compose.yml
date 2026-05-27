@@ -1,0 +1,27 @@
+services:
+  db:
+    container_name: client_management_db
+    image: postgres
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      PGDATA: /data/postgres
+      POSTGRES_DB: devdb
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "9001:5432"
+    networks:
+      - db
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d gourl" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+networks:
+  db:
+    driver: bridge
+
+volumes:
+  db:
