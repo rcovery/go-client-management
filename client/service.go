@@ -17,8 +17,13 @@ func NewService(repo Repository) *Service {
 }
 
 func Insert(ctx context.Context, clientData *Client) (*Client, error) {
-	// if clientData.ID == nil {
-	// }
+	if clientData.Name == "" {
+		return nil, fmt.Errorf("invalid.name")
+	}
+
+	if clientData.PortfolioValue < 0 {
+		return nil, fmt.Errorf("invalid.portfolio.value")
+	}
 
 	parsedEmailAddress, emailErr := mail.ParseAddress(clientData.Email)
 	if emailErr != nil {

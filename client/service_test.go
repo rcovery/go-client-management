@@ -10,6 +10,7 @@ func TestNewClient(t *testing.T) {
 		ctx := context.Background()
 
 		clientData := &Client{
+			Name:  "Ryan Test",
 			Email: "test@test.com",
 		}
 
@@ -31,6 +32,7 @@ func TestNewClient(t *testing.T) {
 		invalidEmail := "test@.com"
 
 		clientData := &Client{
+			Name:  "Ryan Test",
 			Email: invalidEmail,
 		}
 
@@ -47,6 +49,7 @@ func TestNewClient(t *testing.T) {
 		invalidEmail := ""
 
 		clientData := &Client{
+			Name:  "Ryan Test",
 			Email: invalidEmail,
 		}
 
@@ -56,4 +59,52 @@ func TestNewClient(t *testing.T) {
 			t.FailNow()
 		}
 	})
+
+	t.Run("should not create a client with empty name", func(t *testing.T) {
+		ctx := context.Background()
+
+		clientData := &Client{
+			Name:  "",
+			Email: "test@test.com",
+		}
+
+		_, creationErr := Insert(ctx, clientData)
+		if creationErr == nil {
+			t.Errorf("we should not accept empty names")
+			t.FailNow()
+		}
+	})
+
+	t.Run("should not create a client with negative portfolio value", func(t *testing.T) {
+		ctx := context.Background()
+
+		clientData := &Client{
+			Name:           "Ryan Test",
+			Email:          "test@test.com",
+			PortfolioValue: -1,
+		}
+
+		_, creationErr := Insert(ctx, clientData)
+		if creationErr == nil {
+			t.Errorf("we should not accept negative portfolio values")
+			t.FailNow()
+		}
+	})
+
+	t.Run("should create a client with zero portfolio value", func(t *testing.T) {
+		ctx := context.Background()
+
+		clientData := &Client{
+			Name:           "Ryan Test",
+			Email:          "test@test.com",
+			PortfolioValue: 0,
+		}
+
+		_, creationErr := Insert(ctx, clientData)
+		if creationErr != nil {
+			t.Errorf("zero portfolio value should be valid: %v", creationErr)
+			t.FailNow()
+		}
+	})
+
 }
