@@ -1,42 +1,42 @@
-package client_test
+package id_test
 
 import (
 	"testing"
 
-	"github.com/rcovery/go-client-management/client"
+	"github.com/rcovery/go-client-management/packages/id"
 )
 
 func TestNewID(t *testing.T) {
-	t.Run("should create a new ShortURL ID", func(t *testing.T) {
-		ID, err := client.NewID()
+	t.Run("should create a new ID", func(t *testing.T) {
+		ID, err := id.NewID()
 		if err != nil {
 			t.Fatalf("NewID() %v", err)
 		}
 
 		if ID == nil {
-			t.Errorf("Expected a Client ID, received nothing")
+			t.Errorf("Expected an ID, received nothing")
 		}
 	})
 
 	t.Run("should create an unique ID", func(t *testing.T) {
-		ID1, err1 := client.NewID()
+		ID1, err1 := id.NewID()
 		if err1 != nil {
 			t.Fatalf("NewID() %v", err1)
 		}
 
 		stringifiedID1 := ID1
 		if stringifiedID1 == nil {
-			t.Errorf("ID 1: Expected a Client ID, received nothing")
+			t.Errorf("ID 1: Expected an ID, received nothing")
 		}
 
-		ID2, err2 := client.NewID()
+		ID2, err2 := id.NewID()
 		if err2 != nil {
 			t.Fatalf("NewID() %v", err2)
 		}
 
 		stringifiedID2 := ID2
 		if stringifiedID2 == nil {
-			t.Errorf("ID 2: Expected a Client ID, received nothing")
+			t.Errorf("ID 2: Expected an ID, received nothing")
 		}
 
 		if stringifiedID1 == stringifiedID2 {

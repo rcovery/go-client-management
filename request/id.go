@@ -1,4 +1,4 @@
-package client
+package request
 
 import (
 	"github.com/rcovery/go-client-management/packages/id"
