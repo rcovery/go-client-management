@@ -1,3 +1,4 @@
+// Package client - Defines what a client is, and what data it stores
 package client
 
 type Client struct {
