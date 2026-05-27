@@ -13,7 +13,7 @@ func TestNewID(t *testing.T) {
 			t.Fatalf("NewID() %v", err)
 		}
 
-		if ID == "" {
+		if ID == nil {
 			t.Errorf("Expected a Client ID, received nothing")
 		}
 	})
@@ -25,7 +25,7 @@ func TestNewID(t *testing.T) {
 		}
 
 		stringifiedID1 := ID1
-		if stringifiedID1 == "" {
+		if stringifiedID1 == nil {
 			t.Errorf("ID 1: Expected a Client ID, received nothing")
 		}
 
@@ -35,12 +35,12 @@ func TestNewID(t *testing.T) {
 		}
 
 		stringifiedID2 := ID2
-		if stringifiedID2 == "" {
+		if stringifiedID2 == nil {
 			t.Errorf("ID 2: Expected a Client ID, received nothing")
 		}
 
 		if stringifiedID1 == stringifiedID2 {
-			t.Errorf("The IDs are equal! %s / %s", stringifiedID1, stringifiedID2)
+			t.Errorf("The IDs are equal! %v / %v", stringifiedID1, stringifiedID2)
 		}
 	})
 }
