@@ -16,13 +16,13 @@ func NewService(repo Repository) *Service {
 	}
 }
 
-func Insert(ctx context.Context, clientData *Client) (*Client, error) {
+func (s *Service) SelectByEmail(ctx context.Context, email string) (*Client, error) {
+	return nil, nil
+}
+
+func (s *Service) Insert(ctx context.Context, clientData *Client) (*Client, error) {
 	if clientData.Name == "" {
 		return nil, fmt.Errorf("invalid.name")
-	}
-
-	if clientData.RequestType == "" {
-		return nil, fmt.Errorf("invalid.request.type")
 	}
 
 	if clientData.PortfolioValue <= 0 {

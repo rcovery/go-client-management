@@ -2,10 +2,8 @@ package client
 
 type Client struct {
 	ID             *ID
-	IdempotencyKey *IdempotencyKey
 	Name           string
 	Email          string
-	RequestType    string
 	Status         Status
 	PortfolioValue int
 }

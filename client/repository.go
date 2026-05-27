@@ -8,10 +8,9 @@ type Writer interface {
 
 type Reader interface {
 	SelectByEmail(ctx context.Context, email string) (*Client, error)
-	SelectByIdempotencyKey(ctx context.Context, idempotencyKey IdempotencyKey) (*Client, error)
 }
 
-type Repository struct {
+type Repository interface {
 	Reader
 	Writer
 }
