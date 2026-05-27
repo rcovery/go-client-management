@@ -8,8 +8,8 @@ import (
 
 type MockedRepository struct{}
 
-func (m *MockedRepository) Insert(ctx context.Context, clientData *client.Client) (*client.Client, error) {
-	return clientData, nil
+func (m *MockedRepository) Insert(ctx context.Context, clientData *client.Client) (bool, error) {
+	return true, nil
 }
 
 func (m *MockedRepository) SelectByEmail(ctx context.Context, email string) (*client.Client, error) {

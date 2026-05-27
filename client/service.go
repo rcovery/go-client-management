@@ -17,10 +17,15 @@ func NewService(repo Repository) *Service {
 }
 
 func (s *Service) SelectByEmail(ctx context.Context, email string) (*Client, error) {
-	return nil, nil
+	parsedEmailAddress, emailErr := mail.ParseAddress(email)
+	if emailErr != nil {
+		return nil, fmt.Errorf("invalid.email")
+	}
+
+	return s.repo.SelectByEmail(ctx, parsedEmailAddress.Address)
 }
 
-func (s *Service) Insert(ctx context.Context, clientData *Client) (*Client, error) {
+func (s *Service) Insert(ctx context.Context, clientData *PostClientBody) (*Client, error) {
 	if clientData.Name == "" {
 		return nil, fmt.Errorf("invalid.name")
 	}
@@ -34,14 +39,31 @@ func (s *Service) Insert(ctx context.Context, clientData *Client) (*Client, erro
 		return nil, fmt.Errorf("invalid.email")
 	}
 
+	alreadyExistingClient, existingClientErr := s.repo.SelectByEmail(ctx, parsedEmailAddress.Address)
+	if existingClientErr != nil {
+		return nil, fmt.Errorf("error.checking.existing.client")
+	}
+	if alreadyExistingClient != nil {
+		return nil, fmt.Errorf("client.already.exists")
+	}
+
 	id, idErr := NewID()
 	if idErr != nil {
 		return nil, fmt.Errorf("could.not.create.id")
 	}
 
-	clientData.ID = id
-	clientData.Email = parsedEmailAddress.Address
-	clientData.Status = StatusPending
+	clientCreated := &Client{
+		Name:           clientData.Name,
+		PortfolioValue: clientData.PortfolioValue,
+		ID:             id,
+		Email:          parsedEmailAddress.Address,
+		Status:         StatusPending,
+	}
 
-	return clientData, nil
+	_, insertErr := s.repo.Insert(ctx, clientCreated)
+	if insertErr != nil {
+		return nil, fmt.Errorf("could.not.insert.client")
+	}
+
+	return clientCreated, nil
 }

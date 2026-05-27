@@ -6,19 +6,21 @@ import (
 
 	"github.com/rcovery/go-client-management/client"
 	"github.com/rcovery/go-client-management/client/mocks"
+	"github.com/rcovery/go-client-management/client/postgres"
+	infra_postgres "github.com/rcovery/go-client-management/internal/infra/postgres"
 )
 
 func newService() *client.Service {
 	return client.NewService(&mocks.MockedRepository{})
 }
 
-func TestNewClient(t *testing.T) {
+func TestClientBusinessRules(t *testing.T) {
 	t.Run("should create a valid client", func(t *testing.T) {
 		ctx := context.Background()
 
 		service := newService()
 
-		clientData := &client.Client{
+		clientData := &client.PostClientBody{
 			Name:           "Ryan Test",
 			Email:          "test@test.com",
 			PortfolioValue: 100,
@@ -43,7 +45,7 @@ func TestNewClient(t *testing.T) {
 
 		service := newService()
 
-		clientData := &client.Client{
+		clientData := &client.PostClientBody{
 			Name:           "Ryan Test",
 			Email:          invalidEmail,
 			PortfolioValue: 100,
@@ -61,7 +63,7 @@ func TestNewClient(t *testing.T) {
 
 		service := newService()
 
-		clientData := &client.Client{
+		clientData := &client.PostClientBody{
 			Name:           "Ryan Test",
 			Email:          "",
 			PortfolioValue: 100,
@@ -79,7 +81,7 @@ func TestNewClient(t *testing.T) {
 
 		service := newService()
 
-		clientData := &client.Client{
+		clientData := &client.PostClientBody{
 			Name:           "",
 			Email:          "test@test.com",
 			PortfolioValue: 100,
@@ -97,7 +99,7 @@ func TestNewClient(t *testing.T) {
 
 		service := newService()
 
-		clientData := &client.Client{
+		clientData := &client.PostClientBody{
 			Name:           "Ryan Test",
 			Email:          "test@test.com",
 			PortfolioValue: -1,
@@ -115,7 +117,7 @@ func TestNewClient(t *testing.T) {
 
 		service := newService()
 
-		clientData := &client.Client{
+		clientData := &client.PostClientBody{
 			Name:           "Ryan Test",
 			Email:          "test@test.com",
 			PortfolioValue: 0,
@@ -125,6 +127,68 @@ func TestNewClient(t *testing.T) {
 		if creationErr == nil {
 			t.Errorf("we should not accept zero portfolio value")
 			t.FailNow()
+		}
+	})
+}
+
+func TestClientCreation(t *testing.T) {
+	t.Run("should create a valid client", func(t *testing.T) {
+		ctx := context.Background()
+		instance, postgresContainer := infra_postgres.SetupContainer(ctx, t)
+		defer infra_postgres.TerminateContainer(postgresContainer)
+
+		repo := postgres.NewRepository(instance)
+		service := client.NewService(repo)
+
+		clientData := &client.PostClientBody{
+			Name:           "Ryan Test",
+			Email:          "test@test.com",
+			PortfolioValue: 100,
+		}
+
+		createdClient, creationErr := service.Insert(ctx, clientData)
+		if creationErr != nil {
+			t.Errorf("cannot create client: %v", creationErr)
+			t.FailNow()
+		}
+
+		if createdClient.Status != client.StatusPending {
+			t.Errorf("status should be: %v. we received: %v", client.StatusPending, createdClient.Status)
+			t.FailNow()
+		}
+	})
+
+	t.Run("should select a client by email", func(t *testing.T) {
+		ctx := context.Background()
+		instance, postgresContainer := infra_postgres.SetupContainer(ctx, t)
+		defer infra_postgres.TerminateContainer(postgresContainer)
+
+		repo := postgres.NewRepository(instance)
+		service := client.NewService(repo)
+
+		clientData := &client.PostClientBody{
+			Name:           "Ryan Test",
+			Email:          "test@test.com",
+			PortfolioValue: 100,
+		}
+
+		createdClient, creationErr := service.Insert(ctx, clientData)
+		if creationErr != nil {
+			t.Errorf("cannot create client: %v", creationErr)
+			t.FailNow()
+		}
+
+		foundClient, findErr := service.SelectByEmail(ctx, clientData.Email)
+		if findErr != nil {
+			t.Errorf("cannot find client by email: %v", findErr)
+			t.FailNow()
+		}
+		if foundClient == nil {
+			t.Errorf("client not found by email")
+			t.FailNow()
+		}
+		if *foundClient.ID != *createdClient.ID {
+			t.Errorf("found client ID doesn't match")
 		}
 	})
 }

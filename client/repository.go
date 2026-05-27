@@ -3,7 +3,7 @@ package client
 import "context"
 
 type Writer interface {
-	Insert(ctx context.Context, clientData *Client) (*Client, error)
+	Insert(ctx context.Context, clientData *Client) (bool, error)
 }
 
 type Reader interface {
