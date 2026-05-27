@@ -21,7 +21,11 @@ func Insert(ctx context.Context, clientData *Client) (*Client, error) {
 		return nil, fmt.Errorf("invalid.name")
 	}
 
-	if clientData.PortfolioValue < 0 {
+	if clientData.RequestType == "" {
+		return nil, fmt.Errorf("invalid.request.type")
+	}
+
+	if clientData.PortfolioValue <= 0 {
 		return nil, fmt.Errorf("invalid.portfolio.value")
 	}
 

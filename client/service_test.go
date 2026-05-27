@@ -10,8 +10,10 @@ func TestNewClient(t *testing.T) {
 		ctx := context.Background()
 
 		clientData := &Client{
-			Name:  "Ryan Test",
-			Email: "test@test.com",
+			Name:           "Ryan Test",
+			Email:          "test@test.com",
+			PortfolioValue: 100,
+			RequestType:    "consulta",
 		}
 
 		createdClient, creationErr := Insert(ctx, clientData)
@@ -32,8 +34,10 @@ func TestNewClient(t *testing.T) {
 		invalidEmail := "test@.com"
 
 		clientData := &Client{
-			Name:  "Ryan Test",
-			Email: invalidEmail,
+			Name:           "Ryan Test",
+			Email:          invalidEmail,
+			PortfolioValue: 100,
+			RequestType:    "consulta",
 		}
 
 		_, creationErr := Insert(ctx, clientData)
@@ -43,14 +47,14 @@ func TestNewClient(t *testing.T) {
 		}
 	})
 
-	t.Run("should not create a client with blank email", func(t *testing.T) {
+	t.Run("should not create a client with empty email", func(t *testing.T) {
 		ctx := context.Background()
 
-		invalidEmail := ""
-
 		clientData := &Client{
-			Name:  "Ryan Test",
-			Email: invalidEmail,
+			Name:           "Ryan Test",
+			Email:          "",
+			PortfolioValue: 100,
+			RequestType:    "consulta",
 		}
 
 		_, creationErr := Insert(ctx, clientData)
@@ -64,8 +68,10 @@ func TestNewClient(t *testing.T) {
 		ctx := context.Background()
 
 		clientData := &Client{
-			Name:  "",
-			Email: "test@test.com",
+			Name:           "",
+			Email:          "test@test.com",
+			PortfolioValue: 100,
+			RequestType:    "consulta",
 		}
 
 		_, creationErr := Insert(ctx, clientData)
@@ -82,6 +88,7 @@ func TestNewClient(t *testing.T) {
 			Name:           "Ryan Test",
 			Email:          "test@test.com",
 			PortfolioValue: -1,
+			RequestType:    "consulta",
 		}
 
 		_, creationErr := Insert(ctx, clientData)
@@ -91,20 +98,37 @@ func TestNewClient(t *testing.T) {
 		}
 	})
 
-	t.Run("should create a client with zero portfolio value", func(t *testing.T) {
+	t.Run("should not create a client with zero portfolio value", func(t *testing.T) {
 		ctx := context.Background()
 
 		clientData := &Client{
 			Name:           "Ryan Test",
 			Email:          "test@test.com",
 			PortfolioValue: 0,
+			RequestType:    "consulta",
 		}
 
 		_, creationErr := Insert(ctx, clientData)
-		if creationErr != nil {
-			t.Errorf("zero portfolio value should be valid: %v", creationErr)
+		if creationErr == nil {
+			t.Errorf("we should not accept zero portfolio value")
 			t.FailNow()
 		}
 	})
 
+	t.Run("should not create a client with empty request type", func(t *testing.T) {
+		ctx := context.Background()
+
+		clientData := &Client{
+			Name:           "Ryan Test",
+			Email:          "test@test.com",
+			PortfolioValue: 100,
+			RequestType:    "",
+		}
+
+		_, creationErr := Insert(ctx, clientData)
+		if creationErr == nil {
+			t.Errorf("we should not accept empty request type")
+			t.FailNow()
+		}
+	})
 }
