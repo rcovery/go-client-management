@@ -5,6 +5,7 @@ CREATE TABLE clients (
   email TEXT NOT NULL,
   portfolio_value INTEGER NOT NULL,
   status TEXT NOT NULL,
+  priority TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
