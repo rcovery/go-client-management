@@ -12,55 +12,64 @@ import (
 )
 
 func (h *Handler) HandleWebhook() {
-	http.HandleFunc("/webhooks/pipefy/card-updated", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
+	http.HandleFunc("/webhooks/pipefy/card-updated", h.HandleWebhookRequest)
+}
 
-		ctx, ctxCancel := context.WithTimeout(r.Context(), 1*time.Second)
-		defer ctxCancel()
+func (h *Handler) HandleWebhookRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-		contentType := r.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			writeJSONError(w, http.StatusBadRequest, "invalid.content.type")
-			return
-		}
+	ctx, ctxCancel := context.WithTimeout(r.Context(), 1*time.Second)
+	defer ctxCancel()
 
-		rawBody := http.MaxBytesReader(w, r.Body, 2*MB)
-		body, err := io.ReadAll(rawBody)
-		if err != nil {
-			log.Println("failed reading body:", err)
-			writeJSONError(w, http.StatusBadRequest, "invalid.body")
-			return
-		}
-		if len(body) == 0 {
-			writeJSONError(w, http.StatusBadRequest, "empty.body")
-			return
-		}
+	contentType := r.Header.Get("Content-Type")
+	if contentType != "application/json" {
+		writeJSONError(w, http.StatusBadRequest, "invalid.content.type")
+		return
+	}
 
-		var webhookBody webhook.PostUpdatedCardBody
-		err = json.Unmarshal(body, &webhookBody)
-		if err != nil {
-			log.Println("failed decoding json:", err)
-			writeJSONError(w, http.StatusBadRequest, "invalid.json")
-			return
-		}
+	rawBody := http.MaxBytesReader(w, r.Body, 2*MB)
+	body, err := io.ReadAll(rawBody)
+	if err != nil {
+		log.Println("failed reading body:", err)
+		writeJSONError(w, http.StatusBadRequest, "invalid.body")
+		return
+	}
+	if len(body) == 0 {
+		writeJSONError(w, http.StatusBadRequest, "empty.body")
+		return
+	}
 
-		_, creationErr := h.webhookService.Insert(ctx, &webhookBody)
-		if creationErr != nil {
-			log.Println(creationErr)
-			writeJSONError(w, http.StatusBadRequest, creationErr.Error())
-			return
-		}
+	var webhookBody webhook.PostUpdatedCardBody
+	err = json.Unmarshal(body, &webhookBody)
+	if err != nil {
+		log.Println("failed decoding json:", err)
+		writeJSONError(w, http.StatusBadRequest, "invalid.json")
+		return
+	}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
+	_, creationErr := h.webhookService.Insert(ctx, &webhookBody)
+	if creationErr != nil {
+		log.Println(creationErr)
+		writeJSONError(w, http.StatusBadRequest, creationErr.Error())
+		return
+	}
 
-		enc := json.NewEncoder(w)
-		enc.Encode(map[string]any{
-			"success": true,
-			"message": "created.successfully",
-		})
+	_, clientUpdateErr := h.clientService.UpdateStatusAndPriority(ctx, webhookBody.ClienteEmail, webhookBody.CardID)
+	if clientUpdateErr != nil {
+		log.Println(clientUpdateErr)
+		writeJSONError(w, http.StatusBadRequest, clientUpdateErr.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	enc := json.NewEncoder(w)
+	enc.Encode(map[string]any{
+		"success": true,
+		"message": "created.successfully",
 	})
 }

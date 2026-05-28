@@ -34,6 +34,13 @@ func New(db *sql.DB) *Handler {
 	}
 }
 
+func NewHandler(clientSvc *client.Service, webhookSvc *webhook.Service) *Handler {
+	return &Handler{
+		clientService:  clientSvc,
+		webhookService: webhookSvc,
+	}
+}
+
 func writeJSONError(w http.ResponseWriter, status int, code string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
