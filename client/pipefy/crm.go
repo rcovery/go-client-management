@@ -21,7 +21,7 @@ func NewCRMGateway(pipefyToken string) *CRMGateway {
 	}
 }
 
-func (r *CRMGateway) CreateCard(ctx context.Context, clientData *client.Client) (bool, error) {
+func (r *CRMGateway) CreateCard(ctx context.Context, clientData *client.Client, requestType string) (bool, error) {
 	var (
 		pipeID = 123
 		title  = fmt.Sprintf("%s (%s)", clientData.Name, clientData.Email)
@@ -45,6 +45,34 @@ func (r *CRMGateway) CreateCard(ctx context.Context, clientData *client.Client) 
 			{"field_id": "cliente_nome", "field_value": clientData.Name},
 			{"field_id": "cliente_email", "field_value": clientData.Email},
 			{"field_id": "valor_patrimonio", "field_value": clientData.PortfolioValue},
+			{"field_id": "tipo_solicitacao", "field_value": requestType},
+		},
+	}
+
+	graphqlReqErr := r.runRequest(ctx, query, variables)
+	if graphqlReqErr != nil {
+		return false, graphqlReqErr
+	}
+
+	return true, nil
+}
+
+func (r *CRMGateway) UpdateCard(ctx context.Context, cardID string, status client.Status, priority client.Priority) (bool, error) {
+	query := `
+		mutation UpdateCard($id: ID!, $fields: [FieldValueInput]!) {
+			updateCard(input: {
+				id: $id,
+				fields_attributes: $fields
+			}) {
+				card { id title }
+			}
+		}
+	`
+	variables := map[string]any{
+		"id": cardID,
+		"fields": []map[string]any{
+			{"field_id": "status", "field_value": string(status)},
+			{"field_id": "prioridade", "field_value": string(priority)},
 		},
 	}
 
