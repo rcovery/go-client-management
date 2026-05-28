@@ -1,3 +1,4 @@
+// Package client - Defines what a webhook is, and what data it stores
 package webhook
 
 import (
