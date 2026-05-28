@@ -169,13 +169,13 @@ func TestHandleWebhookRequest(t *testing.T) {
 
 		h.HandleWebhookRequest(rec, req)
 
-		if rec.Code != http.StatusBadRequest {
-			t.Fatalf("expected status %d, got %d", http.StatusBadRequest, rec.Code)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected status %d, got %d", http.StatusOK, rec.Code)
 		}
 		var resp map[string]string
 		json.NewDecoder(rec.Body).Decode(&resp)
-		if resp["error"] != "webhook.already.processed" {
-			t.Errorf("expected error 'webhook.already.processed', got '%s'", resp["error"])
+		if resp["message"] != "webhook.already.processed" {
+			t.Errorf("expected message 'webhook.already.processed', got '%s'", resp["message"])
 		}
 	})
 

@@ -24,8 +24,8 @@ func TestNewID(t *testing.T) {
 			t.Fatalf("NewID() %v", err1)
 		}
 
-		stringifiedID1 := ID1
-		if stringifiedID1 == nil {
+		stringifiedID1 := string(*ID1)
+		if stringifiedID1 == "" {
 			t.Errorf("ID 1: Expected an ID, received nothing")
 		}
 
@@ -34,8 +34,8 @@ func TestNewID(t *testing.T) {
 			t.Fatalf("NewID() %v", err2)
 		}
 
-		stringifiedID2 := ID2
-		if stringifiedID2 == nil {
+		stringifiedID2 := string(*ID2)
+		if stringifiedID2 == "" {
 			t.Errorf("ID 2: Expected an ID, received nothing")
 		}
 

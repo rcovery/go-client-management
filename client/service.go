@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/mail"
 )
 
@@ -43,7 +44,8 @@ func (s *Service) Insert(ctx context.Context, clientData *PostClientBody) (*Clie
 
 	alreadyExistingClient, existingClientErr := s.repo.SelectByEmail(ctx, parsedEmailAddress.Address)
 	if existingClientErr != nil {
-		return nil, fmt.Errorf("error.checking.existing.client")
+		log.Println(existingClientErr)
+		return nil, fmt.Errorf("error.when.checking.existing.client")
 	}
 	if alreadyExistingClient != nil {
 		return nil, fmt.Errorf("client.already.exists")
@@ -83,7 +85,8 @@ func (s *Service) UpdateStatusAndPriority(ctx context.Context, email string, car
 
 	existingClient, selectErr := s.repo.SelectByEmail(ctx, parsedEmailAddress.Address)
 	if selectErr != nil {
-		return nil, fmt.Errorf("error.checking.existing.client")
+		log.Println(selectErr)
+		return nil, fmt.Errorf("error.when.checking.existing.client")
 	}
 	if existingClient == nil {
 		return nil, fmt.Errorf("client.not.found")

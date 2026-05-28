@@ -3,6 +3,7 @@ package webhook
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/mail"
 
 	"github.com/rcovery/go-client-management/client"
@@ -36,7 +37,7 @@ func (s *Service) Insert(ctx context.Context, body *PostUpdatedCardBody) (*Webho
 
 	existingWebhook, existingErr := s.repo.SelectByEventID(ctx, body.EventID)
 	if existingErr != nil {
-		return nil, fmt.Errorf("error.checking.existing.webhook")
+		return nil, fmt.Errorf("error.when.checking.existing.webhook")
 	}
 	if existingWebhook != nil {
 		return nil, fmt.Errorf("webhook.already.processed")
@@ -44,7 +45,8 @@ func (s *Service) Insert(ctx context.Context, body *PostUpdatedCardBody) (*Webho
 
 	existingClient, existingClientErr := s.clientReader.SelectByEmail(ctx, parsedEmailAddress.Address)
 	if existingClientErr != nil {
-		return nil, fmt.Errorf("error.checking.existing.client")
+		log.Println(existingClientErr)
+		return nil, fmt.Errorf("error.when.checking.existing.client")
 	}
 	if existingClient == nil {
 		return nil, fmt.Errorf("client.not.found")

@@ -18,7 +18,7 @@ func (h *Handler) HandleClient() {
 			return
 		}
 
-		ctx, ctxCancel := context.WithTimeout(r.Context(), 1*time.Second)
+		ctx, ctxCancel := context.WithTimeout(r.Context(), 10*time.Second)
 		defer ctxCancel()
 
 		contentType := r.Header.Get("Content-Type")

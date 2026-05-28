@@ -97,6 +97,9 @@ func TestWebhookInsert(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected error for invalid email, got nil")
 		}
+		if err.Error() != "invalid.email" {
+			t.Errorf("expected 'invalid.email', got '%s'", err.Error())
+		}
 	})
 
 	t.Run("should reject when client not found", func(t *testing.T) {
