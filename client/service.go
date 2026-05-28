@@ -8,11 +8,13 @@ import (
 
 type Service struct {
 	repo Repository
+	crm  CRMGateway
 }
 
-func NewService(repo Repository) *Service {
+func NewService(repo Repository, crm CRMGateway) *Service {
 	return &Service{
 		repo: repo,
+		crm:  crm,
 	}
 }
 

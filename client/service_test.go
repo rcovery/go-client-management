@@ -11,7 +11,7 @@ import (
 )
 
 func newService() *client.Service {
-	return client.NewService(&mocks.MockedRepository{})
+	return client.NewService(&mocks.MockedCRM{}, &mocks.MockedCRM{})
 }
 
 func TestClientBusinessRules(t *testing.T) {
@@ -138,7 +138,7 @@ func TestClientCreation(t *testing.T) {
 		defer infra_postgres.TerminateContainer(postgresContainer)
 
 		repo := postgres.NewRepository(instance)
-		service := client.NewService(repo)
+		service := client.NewService(repo, &mocks.MockedCRM{})
 
 		clientData := &client.PostClientBody{
 			Name:           "Ryan Test",
@@ -164,7 +164,7 @@ func TestClientCreation(t *testing.T) {
 		defer infra_postgres.TerminateContainer(postgresContainer)
 
 		repo := postgres.NewRepository(instance)
-		service := client.NewService(repo)
+		service := client.NewService(repo, &mocks.MockedCRM{})
 
 		clientData := &client.PostClientBody{
 			Name:           "Ryan Test",

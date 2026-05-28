@@ -8,10 +8,10 @@ import (
 
 type MockedRepository struct{}
 
-func (m *MockedRepository) Insert(ctx context.Context, clientData *client.Client) (bool, error) {
+func (m *MockedCRM) Insert(ctx context.Context, clientData *client.Client) (bool, error) {
 	return true, nil
 }
 
-func (m *MockedRepository) SelectByEmail(ctx context.Context, email string) (*client.Client, error) {
+func (m *MockedCRM) SelectByEmail(ctx context.Context, email string) (*client.Client, error) {
 	return nil, nil
 }
