@@ -36,7 +36,9 @@ func main() {
 		IdleTimeout:  1 * time.Second,
 	}
 
-	handlers.HandleClient(db)
+	h := handlers.New(db)
+	h.HandleClient()
+	// h.HandleWebhook()
 
 	server.ListenAndServe()
 }
