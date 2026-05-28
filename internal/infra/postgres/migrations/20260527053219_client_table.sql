@@ -9,7 +9,7 @@ CREATE TABLE clients (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS clients_email ON clients (email);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_clients_email ON clients (email);
 
 -- +goose Down
 DROP TABLE IF EXISTS clients;
