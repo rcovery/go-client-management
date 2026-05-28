@@ -13,12 +13,30 @@ services:
       - "9001:5432"
     networks:
       - db
-    restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d gourl" ]
-      interval: 30s
-      timeout: 10s
+      test: [ "CMD-SHELL", "pg_isready -d devdb" ]
+      interval: 10s
+      timeout: 5s
       retries: 5
+
+  app:
+    container_name: rcovery_client_management_app
+    image: golang:1.26-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      DBHOST: db
+      DBPORT: 5432
+    ports:
+      - "9000:9000"
+    networks:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["/app/docker-entrypoint.sh"]
+
 networks:
   db:
     driver: bridge
