@@ -10,11 +10,13 @@ import (
 	"github.com/rcovery/go-client-management/client/pipefy"
 	clientPostgres "github.com/rcovery/go-client-management/client/postgres"
 	"github.com/rcovery/go-client-management/internal/config"
+	"github.com/rcovery/go-client-management/webhook"
+	webhookPostgres "github.com/rcovery/go-client-management/webhook/postgres"
 )
 
 type Handler struct {
-	clientService *client.Service
-	// webhookService *webhook.Service
+	clientService  *client.Service
+	webhookService *webhook.Service
 }
 
 func New(db *sql.DB) *Handler {
@@ -23,12 +25,12 @@ func New(db *sql.DB) *Handler {
 	clientRepo := clientPostgres.NewRepository(db)
 	clientSvc := client.NewService(clientRepo, pipefyGateway)
 
-	// webhookRepo := webhookPostgres.NewRepository(db)
-	// webhookSvc := webhook.NewService(webhookRepo, clientSvc)
+	webhookRepo := webhookPostgres.NewRepository(db)
+	webhookSvc := webhook.NewService(webhookRepo, clientSvc)
 
 	return &Handler{
-		clientService: clientSvc,
-		// webhookService: webhookSvc,
+		clientService:  clientSvc,
+		webhookService: webhookSvc,
 	}
 }
 

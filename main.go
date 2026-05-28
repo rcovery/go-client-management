@@ -38,7 +38,7 @@ func main() {
 
 	h := handlers.New(db)
 	h.HandleClient()
-	// h.HandleWebhook()
+	h.HandleWebhook()
 
 	server.ListenAndServe()
 }
