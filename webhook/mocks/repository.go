@@ -7,21 +7,25 @@ import (
 	"github.com/rcovery/go-client-management/webhook"
 )
 
-type MockedRepository struct{}
+type MockedRepository struct {
+	StoredWebhook *webhook.Webhook
+}
 
 func (m *MockedRepository) Insert(ctx context.Context, w *webhook.Webhook) (bool, error) {
 	return true, nil
 }
 
 func (m *MockedRepository) SelectByEventID(ctx context.Context, eventID string) (*webhook.Webhook, error) {
-	return nil, nil
+	return m.StoredWebhook, nil
 }
 
-type MockedClientReader struct{}
+type MockedClientReader struct {
+	StoredClient *client.Client
+}
 
 func (m *MockedClientReader) SelectByEmail(ctx context.Context, email string) (*client.Client, error) {
-	clientID := client.ID("test-client-uuid")
-	return &client.Client{
-		ID: &clientID,
-	}, nil
+	if m.StoredClient == nil {
+		return nil, nil
+	}
+	return m.StoredClient, nil
 }
