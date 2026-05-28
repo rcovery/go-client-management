@@ -53,6 +53,18 @@ func (h *Handler) HandleWebhookRequest(w http.ResponseWriter, r *http.Request) {
 	_, creationErr := h.webhookService.Insert(ctx, &webhookBody)
 	if creationErr != nil {
 		log.Println(creationErr)
+		if creationErr.Error() == "webhook.already.processed" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+
+			enc := json.NewEncoder(w)
+			enc.Encode(map[string]any{
+				"success": true,
+				"message": creationErr.Error(),
+			})
+			return
+		}
+
 		writeJSONError(w, http.StatusBadRequest, creationErr.Error())
 		return
 	}
@@ -70,6 +82,6 @@ func (h *Handler) HandleWebhookRequest(w http.ResponseWriter, r *http.Request) {
 	enc := json.NewEncoder(w)
 	enc.Encode(map[string]any{
 		"success": true,
-		"message": "created.successfully",
+		"message": "processed.successfully",
 	})
 }
