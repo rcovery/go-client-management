@@ -40,5 +40,8 @@ func main() {
 	h.HandleClient()
 	h.HandleWebhook()
 
-	server.ListenAndServe()
+	serverErr := server.ListenAndServe()
+	if serverErr != nil {
+		log.Fatal(serverErr)
+	}
 }
