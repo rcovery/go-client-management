@@ -11,7 +11,7 @@ import (
 )
 
 func newService() *client.Service {
-	return client.NewService(&mocks.MockedCRM{}, &mocks.MockedCRM{})
+	return client.NewService(&mocks.MockedRepository{}, &mocks.MockedCRM{})
 }
 
 func TestClientBusinessRules(t *testing.T) {
@@ -125,8 +125,88 @@ func TestClientBusinessRules(t *testing.T) {
 
 		_, creationErr := service.Insert(ctx, clientData)
 		if creationErr == nil {
-			t.Errorf("we should not accept zero portfolio value")
+			t.Errorf("we should not accept zero portfolio values")
 			t.FailNow()
+		}
+	})
+
+	t.Run("should update status and priority", func(t *testing.T) {
+		ctx := context.Background()
+
+		ClientID := client.ID("test-uuid")
+		repo := &mocks.MockedRepository{
+			StoredClient: &client.Client{
+				ID:             &ClientID,
+				Name:           "Update Test",
+				Email:          "update@test.com",
+				PortfolioValue: 250000,
+			},
+		}
+		svc := client.NewService(repo, &mocks.MockedCRM{})
+
+		updated, updateErr := svc.UpdateStatusAndPriority(ctx, "update@test.com", "card-123")
+		if updateErr != nil {
+			t.Fatalf("cannot update client: %v", updateErr)
+		}
+
+		if updated.Status != client.StatusProcessed {
+			t.Errorf("status should be %v, got %v", client.StatusProcessed, updated.Status)
+		}
+
+		if updated.Priority == nil || *updated.Priority != client.HighPriority {
+			t.Errorf("priority should be %v, got %v", client.HighPriority, updated.Priority)
+		}
+
+		if updated.PortfolioValue != 250000 {
+			t.Errorf("portfolio value should remain %d, got %d", 250000, updated.PortfolioValue)
+		}
+	})
+
+	t.Run("should set high priority for portfolio exactly 200000", func(t *testing.T) {
+		ctx := context.Background()
+
+		ClientID := client.ID("test-uuid-boundary")
+		repo := &mocks.MockedRepository{
+			StoredClient: &client.Client{
+				ID:             &ClientID,
+				Name:           "Boundary Test",
+				Email:          "boundary@test.com",
+				PortfolioValue: 200000,
+			},
+		}
+		svc := client.NewService(repo, &mocks.MockedCRM{})
+
+		updated, updateErr := svc.UpdateStatusAndPriority(ctx, "boundary@test.com", "card-123")
+		if updateErr != nil {
+			t.Fatalf("cannot update client: %v", updateErr)
+		}
+
+		if updated.Priority == nil || *updated.Priority != client.HighPriority {
+			t.Errorf("priority should be %v, got %v", client.HighPriority, updated.Priority)
+		}
+	})
+
+	t.Run("should set normal priority for portfolio 199999", func(t *testing.T) {
+		ctx := context.Background()
+
+		ClientID := client.ID("test-uuid-below")
+		repo := &mocks.MockedRepository{
+			StoredClient: &client.Client{
+				ID:             &ClientID,
+				Name:           "Below Test",
+				Email:          "below@test.com",
+				PortfolioValue: 199999,
+			},
+		}
+		svc := client.NewService(repo, &mocks.MockedCRM{})
+
+		updated, updateErr := svc.UpdateStatusAndPriority(ctx, "below@test.com", "card-123")
+		if updateErr != nil {
+			t.Fatalf("cannot update client: %v", updateErr)
+		}
+
+		if updated.Priority == nil || *updated.Priority != client.NormalPriority {
+			t.Errorf("priority should be %v, got %v", client.NormalPriority, updated.Priority)
 		}
 	})
 }

@@ -6,6 +6,7 @@ type Client struct {
 	Name           string
 	Email          string
 	Status         Status
+	Priority       *Priority
 	PortfolioValue int
 }
 

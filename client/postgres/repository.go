@@ -52,3 +52,20 @@ func (r *Repository) Insert(ctx context.Context, clientData *client.Client) (boo
 
 	return true, nil
 }
+
+func (r *Repository) UpdateStatusAndPriority(ctx context.Context, clientData *client.Client) error {
+	query := `UPDATE clients SET status = $1, priority = $2, updated_at = NOW() WHERE id = $3`
+
+	var priorityArg any
+	if clientData.Priority != nil {
+		priorityArg = string(*clientData.Priority)
+	}
+
+	_, execErr := r.DB.ExecContext(ctx, query,
+		string(clientData.Status),
+		priorityArg,
+		string(*clientData.ID),
+	)
+
+	return execErr
+}

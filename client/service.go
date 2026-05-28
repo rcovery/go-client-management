@@ -67,5 +67,45 @@ func (s *Service) Insert(ctx context.Context, clientData *PostClientBody) (*Clie
 		return nil, fmt.Errorf("could.not.insert.client")
 	}
 
+	_, crmErr := s.crm.CreateCard(ctx, clientCreated)
+	if crmErr != nil {
+		return nil, fmt.Errorf("could.not.update.card.in.crm")
+	}
+
 	return clientCreated, nil
+}
+
+func (s *Service) UpdateStatusAndPriority(ctx context.Context, email string, cardID string) (*Client, error) {
+	parsedEmailAddress, emailErr := mail.ParseAddress(email)
+	if emailErr != nil {
+		return nil, fmt.Errorf("invalid.email")
+	}
+
+	existingClient, selectErr := s.repo.SelectByEmail(ctx, parsedEmailAddress.Address)
+	if selectErr != nil {
+		return nil, fmt.Errorf("error.checking.existing.client")
+	}
+	if existingClient == nil {
+		return nil, fmt.Errorf("client.not.found")
+	}
+
+	priority := NormalPriority
+	if existingClient.PortfolioValue >= 200000 {
+		priority = HighPriority
+	}
+
+	existingClient.Status = StatusProcessed
+	existingClient.Priority = &priority
+
+	updateErr := s.repo.UpdateStatusAndPriority(ctx, existingClient)
+	if updateErr != nil {
+		return nil, fmt.Errorf("could.not.update.client")
+	}
+
+	_, crmErr := s.crm.UpdateCard(ctx, cardID, existingClient.Status, *existingClient.Priority)
+	if crmErr != nil {
+		return nil, fmt.Errorf("could.not.update.card.in.crm")
+	}
+
+	return existingClient, nil
 }
