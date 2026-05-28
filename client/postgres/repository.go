@@ -18,12 +18,13 @@ func NewRepository(DB *sql.DB) *Repository {
 }
 
 func (r *Repository) SelectByEmail(ctx context.Context, email string) (*client.Client, error) {
-	query := `SELECT id, name, email, portfolio_value, status FROM clients WHERE email = $1`
+	query := `SELECT id, name, email, portfolio_value, status, priority FROM clients WHERE email = $1`
 
 	var idStr string
+	var priorityStr *string
 	clientFound := &client.Client{}
 
-	err := r.DB.QueryRowContext(ctx, query, email).Scan(&idStr, &clientFound.Name, &clientFound.Email, &clientFound.PortfolioValue, &clientFound.Status)
+	err := r.DB.QueryRowContext(ctx, query, email).Scan(&idStr, &clientFound.Name, &clientFound.Email, &clientFound.PortfolioValue, &clientFound.Status, &priorityStr)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -32,6 +33,11 @@ func (r *Repository) SelectByEmail(ctx context.Context, email string) (*client.C
 	}
 
 	clientFound.ID = (*client.ID)(&idStr)
+	var priorityErr error
+	clientFound.Priority, priorityErr = client.ToPriority(priorityStr)
+	if priorityErr != nil {
+		return nil, priorityErr
+	}
 
 	return clientFound, nil
 }
