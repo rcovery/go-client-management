@@ -8,7 +8,7 @@ import (
 
 type MockedCRM struct{}
 
-func (m *MockedCRM) CreateCard(ctx context.Context, clientData *client.Client) (bool, error) {
+func (m *MockedCRM) CreateCard(ctx context.Context, clientData *client.Client, requestType string) (bool, error) {
 	return true, nil
 }
 

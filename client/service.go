@@ -67,7 +67,7 @@ func (s *Service) Insert(ctx context.Context, clientData *PostClientBody) (*Clie
 		return nil, fmt.Errorf("could.not.insert.client")
 	}
 
-	_, crmErr := s.crm.CreateCard(ctx, clientCreated)
+	_, crmErr := s.crm.CreateCard(ctx, clientCreated, clientData.RequestType)
 	if crmErr != nil {
 		return nil, fmt.Errorf("could.not.update.card.in.crm")
 	}
