@@ -3,7 +3,7 @@ CREATE TABLE webhooks (
   id UUID PRIMARY KEY,
   event_id TEXT NOT NULL,
   card_id TEXT NOT NULL,
-  client_id UUID NOT NULL REFERENCES clients(id),
+  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
