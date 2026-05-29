@@ -12,7 +12,7 @@ Para rodar os testes:
 ```sh
 go test -v ./...
 ```
-- Este comando ira executar os testes de integraçao (com testcontainers) e testes unitarios com comportamento mockado
+- Este comando ira executar os testes de integraçao (com testcontainers) e testes unitarios (com comportamento mockado)
 
 ## Exemplos de requisição
 
@@ -28,7 +28,7 @@ curl --location 'localhost:9000/clientes' \
 }'
 ```
 
-- Retorno em caso de sucesso:
+Retorno em caso de sucesso:
 ```json
 {
     "message": "created.successfully",
@@ -49,7 +49,7 @@ curl --location 'localhost:9000/webhooks/pipefy/card-updated' \
 }'
 ```
 
-- Retorno em caso de sucesso:
+Retorno em caso de sucesso:
 ```json
 {
     "message": "processed.successfully",
@@ -61,19 +61,19 @@ curl --location 'localhost:9000/webhooks/pipefy/card-updated' \
 
 ### Banco de dados
 
-Utilizaríamos uma instância do Amazon RDS, e nela conseguiríamos escalar verticalmente ou 
+Neste projeto utilizaríamos uma instância do Amazon RDS, e nela podemos escalar verticalmente ou 
 horizontalmente dependendo do problema que queremos resolver:
 
 - Verticalmente: aumentaríamos os recursos do servidor (CPU, memória, storage)
 - Horizontalmente: criaríamos uma réplica read-only do banco (geralmente é usado para fazer leituras mais pesadas. Ex: relatórios), a própria AWS gerencia isto para nós. Neste caso, teríamos que fazer algumas alterações no código da aplicação para que seja possível nos conectarmos nas réplicas.
 
-Há também a opção de fazermos sharding (separar o banco em partições distribuídas), seria uma opção um pouco mais avançada, e talvez teríamos que utilizar DynamoDB ao invés de um banco relacional (a AWS já gerencia os shardings para nós).
+Há também a opção de fazermos sharding (separar o banco em partições distribuídas), seria uma opção um pouco mais avançada e talvez teríamos que utilizar DynamoDB ao invés de um banco relacional (a AWS também já gerencia os shardings para nós).
 
 ### Aplicação
 
-Esta API foi desenvolvida da maneira "padrão", ou seja, um servidor Golang irá subir e expor 2 endpoints. Poderíamos subir esta aplicação no modelo serverless (com Lambda).
+Esta API foi desenvolvida da maneira "padrão", ou seja, um servidor Golang irá subir e expor 2 endpoints. Poderíamos também subir esta aplicação no modelo serverless (com Lambda).
 
-- API Gateway + Lambda: A escalabilidade é gerenciada pela própria AWS (horizontal), um dos pontos que precisamos nos atentar é o limite de requisições simultâneas (caso seja uma API com high throughput), e também a quantidade de memória alocada em cada função Lambda (geralmente o padrão nos atende bem), um detalhe é que não conseguimos definir a CPU, ela escala proporcionalmente com a memória. Para usar Lambdas, precisaríamos fazer algumas alterações no código para carregar a biblioteca da AWS.
-- AWS Elastic Beanstalk: Por baixo dos panos ele sobe um EC2 que roda a aplicação e um load balancer, então conseguiríamos escalar horizontalmente. Também é possível aumentarmos os recursos das máquinas que rodam a aplicação.
+- API Gateway + Lambda: A escalabilidade é gerenciada pela própria AWS (horizontal), um dos pontos que precisamos nos atentar é o limite de requisições simultâneas (caso seja uma API com high throughput), e também a quantidade de memória alocada em cada função Lambda (geralmente o padrão nos atende bem). Um detalhe é que não conseguimos definir a CPU usada nas funções, ela escala proporcionalmente com a memória. Para usar Lambdas neste projeto, precisaríamos fazer algumas alterações no código para carregar a biblioteca da AWS.
+- AWS Elastic Beanstalk: Por baixo dos panos ele sobe um load balancer e um EC2 que é responsável por rodar a aplicação, então conseguiríamos escalar horizontalmente. Também é possível aumentarmos os recursos das máquinas se quisermos escalar verticalmente.
 
-Também precisaríamos conectar a aplicação com o banco de dados, para isto teríamos que usar uma rede privada (VPC) em ambos os serviços, assim a conexão é feita e o banco não fica exposto para a internet.
+Obs: também precisaríamos conectar a aplicação com o banco de dados, para isto teríamos que usar uma rede privada (VPC) em ambos os serviços, assim a conexão entre eles é feita e o banco não fica exposto para a internet.
